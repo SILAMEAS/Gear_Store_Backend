@@ -25,6 +25,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    def perform_create(self, serializer):
+        print(self.request)
+        serializer.save()  # This saves the instance with all provided data
+
 # Order ViewSet
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -40,6 +44,18 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
+
+    @action(detail=True, methods=['post'])
+    def add_to_cart(self, request, pk=None):
+        product = Product.objects.get(pk=pk)
+        user = request.user
+
+        cart_item, created = Cart.objects.get_or_create(user=user, product=product)
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+
+        return Response({"message": "Product added to cart!"}, status=status.HTTP_201_CREATED)
 
 # Payment ViewSet
 class PaymentViewSet(viewsets.ModelViewSet):

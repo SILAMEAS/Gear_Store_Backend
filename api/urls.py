@@ -6,7 +6,8 @@ from .views import (
     OrderItemViewSet, CartViewSet, PaymentViewSet, ShippingAddressViewSet,
     ReviewViewSet, WishlistViewSet
 )
-
+from django.conf import settings
+from django.conf.urls.static import static
 # Router for ViewSets
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -26,3 +27,5 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
