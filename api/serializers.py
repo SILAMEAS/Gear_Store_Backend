@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password"]
+        fields = ["id", "username", "email", "password","is_active","is_staff","is_superuser"]
 
     def create(self, validated_data):
         validated_data["password"] = make_password(validated_data["password"])
@@ -23,7 +23,7 @@ class CategorySerializer(serializers.ModelSerializer):
 # Product Serializer
 class ProductSerializer(serializers.ModelSerializer):
     # category = CategorySerializer(read_only=True)
-
+    image = serializers.ImageField(required=True)
     class Meta:
         model = Product
         fields = "__all__"

@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third-party apps
     'rest_framework',  # DRF
-    'api'
+    'api',
+    # ALL YOUR APPS
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +132,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 AUTH_USER_MODEL = "api.User"
 
@@ -137,3 +140,11 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'LA Gear Store',
+    'DESCRIPTION': 'Online Shopping sell accessories computer',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,  # Ensures correct handling of file uploads
+    # OTHER SETTINGS
+}
