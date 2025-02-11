@@ -1,13 +1,25 @@
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAdminUser,IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAdminUser,IsAuthenticated,AllowAny
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from .models import User, Category, Product, Order, OrderItem, Cart, Payment, ShippingAddress, Review, Wishlist
 from .pagination import CustomPagination
 from .serializers import UserSerializer, CategorySerializer, ProductSerializer, OrderSerializer, OrderItemSerializer, CartSerializer, PaymentSerializer, ShippingAddressSerializer, ReviewSerializer, WishlistSerializer
+from rest_framework import permissions
 
+class SuperAdminOnly(permissions.BasePermission):
+    """
+    Custom permission to allow only super admins to modify data.
+    """
+
+    def has_permission(self, request, view):
+        # Allow GET, HEAD, OPTIONS for everyone
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        # Allow PUT, POST, DELETE only for super admins
+        return request.user and request.user.is_superuser
 
 @extend_schema(tags=["User"])
 class UserViewSet(viewsets.ModelViewSet):
@@ -53,6 +65,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = CustomPagination
+    permission_classes = [SuperAdminOnly]
 
 @extend_schema(tags=["Product"])
 class ProductViewSet(viewsets.ModelViewSet):
