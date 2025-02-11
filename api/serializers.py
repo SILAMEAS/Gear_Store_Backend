@@ -30,19 +30,64 @@ class ProductSerializer(serializers.ModelSerializer):
 
 # OrderItem Serializer
 class OrderItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), write_only=True  # Allow passing only product_id
+    )
 
     class Meta:
         model = OrderItem
-        fields = "__all__"
+        fields = ['id', 'product_id', 'quantity']  # Remove 'order' field
 
 # Order Serializer
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
+    items = OrderItemSerializer(many=True, write_only=True)  # Nested input for order items
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # Auto-assign user
 
     class Meta:
         model = Order
-        fields = "__all__"
+        fields = ['id', 'user', 'status', 'created_at', 'items']
+        read_only_fields = ['total_price', 'status', 'created_at']
+
+    def create(self, validated_data):
+        items_data = validated_data.pop('items', [])  # Safely pop items
+
+        # Initialize total price to 0
+        total_price = 0
+
+        # Create the order instance (without total_price for now)
+        order = Order.objects.create(**validated_data)
+
+        order_items = []
+
+        for item_data in items_data:
+            product = item_data['product_id']  # Get product from product_id
+            quantity = item_data['quantity']
+            price = product.price * quantity  # Calculate price based on current product price
+
+            # Ensure sufficient stock
+            if product.stock < quantity:
+                raise serializers.ValidationError(f"Not enough stock for {product.name}")
+
+            product.stock -= quantity  # Reduce stock
+            product.save()
+
+            # Create the OrderItem instance with the correct order reference
+            order_item = OrderItem(order=order, product=product, quantity=quantity, price=price)
+            order_items.append(order_item)
+            total_price += price  # Accumulate total price
+
+        # Bulk create the OrderItem instances
+        OrderItem.objects.bulk_create(order_items)
+
+        # Assign the total_price to the order
+        order.total_price = total_price
+
+        # Save the order with the total price
+        order.save()
+
+        return order
+
+
 
 # Cart Serializer
 class CartSerializer(serializers.ModelSerializer):

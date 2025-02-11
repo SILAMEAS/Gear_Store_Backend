@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'api',
     # ALL YOUR APPS
     'drf_spectacular',
+    # allow cor
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -52,6 +54,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
+    'django.middleware.common.CommonMiddleware'
 ]
 
 ROOT_URLCONF = 'gear_store.urls'
@@ -148,3 +153,4 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,  # Ensures correct handling of file uploads
     # OTHER SETTINGS
 }
+CORS_ORIGIN_ALLOW_ALL = True

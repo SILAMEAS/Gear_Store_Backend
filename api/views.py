@@ -79,14 +79,31 @@ class ProductViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
+
+    def perform_create(self, serializer):
+        print('perform_create')
+        serializer.save(user=self.request.user)  # Auto-assign the logged-in user
     # GET
     def get_queryset(self):
         qs = super().get_queryset()
         if not self.request.user.is_staff:
-            qs = qs.filter(user=self.request.user)
+            qs = qs.filter(user=self.request.user.id)
         return qs
+
+    @action(detail=True, methods=['POST'])
+    def cancel(self, request, pk=None):
+        """
+        Custom action to cancel an order.
+        """
+        order = self.get_object()
+        if order.status != 'pending':
+            return Response({'error': 'Only pending orders can be cancelled'}, status=400)
+
+        order.status = 'cancelled'
+        order.save()
+        return Response({'message': 'Order cancelled successfully'})
 
 
 
