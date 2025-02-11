@@ -17,7 +17,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
-        return self.username
+        return f"{self.username} : {self.id}"
 
 
 # Category Model (for product categories)

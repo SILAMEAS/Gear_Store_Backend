@@ -19,20 +19,25 @@ class UserViewSet(viewsets.ModelViewSet):
         """Modify queryset based on action"""
         if self.action == "list":
             # If listing all users, return filtered queryset
-            return User.objects.filter(is_active=True)  # Example filter
-        elif self.action == "retrieve":
+            return User.objects.all()  # Example filter
+        elif self.action == "retrieve" and self.request.user.is_superuser:
             # If retrieving a single user, return only that user
             return User.objects.filter(pk=self.kwargs["pk"])
         return super().get_queryset()
 
     def list(self, request, *args, **kwargs):
         """Customize list behavior"""
-        if request.user.is_staff:
+        if request.user.is_superuser:
+            queryset = self.get_queryset()  # Admins see all active users
+        elif request.user.is_staff:
             queryset = self.get_queryset()  # Admins see all active users
         else:
             queryset = self.get_queryset().filter(id=request.user.id)  # Regular users see only themselves
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        if request.user.is_superuser:
+            return Response(serializer.data)
+        else:
+            return Response(serializer.data[0])
 
     def retrieve(self, request, *args, **kwargs):
         """Customize retrieve behavior"""
