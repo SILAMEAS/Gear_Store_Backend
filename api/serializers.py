@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import User, Category, Product, Order, OrderItem, Cart, Payment, ShippingAddress, Review, Wishlist
 from django.contrib.auth.hashers import make_password
-
+from django.db import transaction
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -43,15 +43,32 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'user', 'status', 'created_at', 'items']
 
+    # =======================================================
+    #                CREAT ORDER
+    # =======================================================
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        order = Order.objects.create(**validated_data)
+        with transaction.atomic():
+            order = Order.objects.create(**validated_data)
 
-        for item in items_data:
-            OrderItem.objects.create(order=order, **item)
-
+            for item in items_data:
+                OrderItem.objects.create(order=order, **item)
         return order
 
+    # =======================================================
+    #                UPDATE ORDER
+    # =======================================================
+    def update(self, instance, validated_data):
+        orderItem_data = validated_data.pop('items', None)
+        with transaction.atomic():
+            instance = super().update(instance, validated_data)
+            if orderItem_data is not None:
+                # Clear all
+                instance.items.all().delete()
+                # Passing
+                for orderItem in orderItem_data:
+                    OrderItem.objects.create(order=instance, **orderItem)
+        return instance
 
 
 # Cart Serializer

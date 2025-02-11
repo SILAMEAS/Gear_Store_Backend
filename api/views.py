@@ -67,23 +67,25 @@ class CategoryViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     permission_classes = [SuperAdminOnly]
 
-    # def list(self, request):
-    #     pass
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        print(instance)
+        if not instance:
+            return Response({"detail": "Category not found"}, status=404)
 
-    def create(self, request):
-        pass
+        # Example: Custom logic before deletion (optional)
+        if instance.is_locked:  # If the instance is locked, don't allow deletion
+            return Response({"detail": "This object cannot be deleted."}, status=status.HTTP_400_BAD_REQUEST)
 
-    def retrieve(self, request, pk=None):
-        pass
+        # Perform the actual deletion
+        self.perform_destroy(instance)
 
-    def update(self, request, pk=None):
-        pass
+        # Return a custom response message
+        return Response({"message": "Delete successfully"}, status=status.HTTP_204_NO_CONTENT)
 
-    def partial_update(self, request, pk=None):
-        pass
-
-    def destroy(self, request, pk=None):
-        pass
+    def perform_destroy(self, instance):
+        # This is where the actual deletion takes place
+        instance.delete()
 
 @extend_schema(tags=["Product"])
 class ProductViewSet(viewsets.ModelViewSet):
@@ -97,10 +99,10 @@ class ProductViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
     permission_classes = [IsAuthenticated]  # Ensure the user is logged in
 
+    # Automatically set the user to the currently authenticated user
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
     # GET
@@ -109,6 +111,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not self.request.user.is_staff:
             qs = qs.filter(user=self.request.user.id)
         return qs
+
+    # def create(self, validated_data):
+    #     items_data = validated_data.pop('items')
+    #     order = Order.objects.create(**validated_data)
+    #
+    #     for item in items_data:
+    #         OrderItem.objects.create(order=order, **item)
+    #     return order
     #
     # def retrieve(self, request, pk=None):
     #     pass

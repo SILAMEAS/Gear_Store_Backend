@@ -154,3 +154,9 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 CORS_ORIGIN_ALLOW_ALL = True
+# time life of jwt token
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Change to your desired access token lifetime
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Change to your desired refresh token lifetime
+}
