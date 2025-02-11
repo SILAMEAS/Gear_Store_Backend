@@ -20,7 +20,7 @@ def custom_exception_handler(exc, context):
         return Response(
             {
                 "error": "Something went wrong",
-                "detail": str(exc)  # Hide this in production for security
+                "message": str(exc)  # Hide this in production for security
             },
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

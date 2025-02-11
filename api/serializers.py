@@ -18,11 +18,10 @@ class UserSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ['id', 'name']
 
 # Product Serializer
 class ProductSerializer(serializers.ModelSerializer):
-    # category = CategorySerializer(read_only=True)
     image = serializers.ImageField(required=True)
     class Meta:
         model = Product
@@ -30,60 +29,26 @@ class ProductSerializer(serializers.ModelSerializer):
 
 # OrderItem Serializer
 class OrderItemSerializer(serializers.ModelSerializer):
-    product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.all(), write_only=True  # Allow passing only product_id
-    )
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product_id', 'quantity']  # Remove 'order' field
+        fields = ['product', 'quantity']  # Remove 'order' field
 
 # Order Serializer
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, write_only=True)  # Nested input for order items
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())  # Auto-assign user
-
+    items = OrderItemSerializer(many=True)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Order
         fields = ['id', 'user', 'status', 'created_at', 'items']
-        read_only_fields = ['total_price', 'status', 'created_at']
 
     def create(self, validated_data):
-        items_data = validated_data.pop('items', [])  # Safely pop items
-
-        # Initialize total price to 0
-        total_price = 0
-
-        # Create the order instance (without total_price for now)
+        items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
 
-        order_items = []
-
-        for item_data in items_data:
-            product = item_data['product_id']  # Get product from product_id
-            quantity = item_data['quantity']
-            price = product.price * quantity  # Calculate price based on current product price
-
-            # Ensure sufficient stock
-            if product.stock < quantity:
-                raise serializers.ValidationError(f"Not enough stock for {product.name}")
-
-            product.stock -= quantity  # Reduce stock
-            product.save()
-
-            # Create the OrderItem instance with the correct order reference
-            order_item = OrderItem(order=order, product=product, quantity=quantity, price=price)
-            order_items.append(order_item)
-            total_price += price  # Accumulate total price
-
-        # Bulk create the OrderItem instances
-        OrderItem.objects.bulk_create(order_items)
-
-        # Assign the total_price to the order
-        order.total_price = total_price
-
-        # Save the order with the total price
-        order.save()
+        for item in items_data:
+            OrderItem.objects.create(order=order, **item)
 
         return order
 
