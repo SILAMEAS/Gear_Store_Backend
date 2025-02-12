@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAdminUser,IsAuthenticated,AllowAny
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
-from .models import User, Category, Product, Order, OrderItem, Cart, Payment, ShippingAddress, Review, Wishlist
+from .models import User, Category, Product, Order, OrderItem, Cart, Payment, ShippingAddress, Review, Wishlist,ProductThumbnail
 from .pagination import CustomPagination
 from .serializers import UserSerializer, CategorySerializer, ProductSerializer, OrderSerializer, OrderItemSerializer, CartSerializer, PaymentSerializer, ShippingAddressSerializer, ReviewSerializer, WishlistSerializer
 from rest_framework import permissions
@@ -109,6 +109,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [SuperAdminOnly]
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = CustomPagination
+
+    def perform_create(self, serializer):
+        product = serializer.save()
+        thumbnails = self.request.FILES.getlist('thumbnails')  # Get multiple uploaded files
+
+        for image in thumbnails:
+            ProductThumbnail.objects.create(product=product, image=image)
 
     @action(detail=False, methods=['DELETE'], permission_classes=[permissions.IsAdminUser])
     def clear_products(self, request):

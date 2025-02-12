@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Category, Product, Order, OrderItem, Cart, Payment, ShippingAddress, Review, Wishlist
+from .models import User, Category, Product, Order, OrderItem, Cart, Payment, ShippingAddress, Review, Wishlist,ProductThumbnail
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 # User Serializer
@@ -19,7 +19,10 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name']
-
+class ProductThumbnailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductThumbnail
+        fields = ["id", "image"]  # Returning image URL only
 # Product Serializer
 class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=True)  # Required during creation
@@ -28,10 +31,11 @@ class ProductSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(required=True, max_digits=10, decimal_places=2)  # Required during creation
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  # Accepts category ID
     rating = serializers.SerializerMethodField()
+    thumbnails = ProductThumbnailSerializer(many=True, read_only=True)  # Nested thumbnails
 
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock"]
+        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock","thumbnails"]
 
     def get_rating(self, obj):
         reviews = obj.reviews.all()
