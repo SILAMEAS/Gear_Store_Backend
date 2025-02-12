@@ -22,28 +22,21 @@ class CategorySerializer(serializers.ModelSerializer):
 
 # Product Serializer
 class ProductSerializer(serializers.ModelSerializer):
-<<<<<<< Updated upstream
     image = serializers.ImageField(required=True)  # Required during creation
     name = serializers.CharField(required=True)  # Required during creation
     description = serializers.CharField(required=True)  # Required during creation
     price = serializers.DecimalField(required=True, max_digits=10, decimal_places=2)  # Required during creation
-    category = serializers.PrimaryKeyRelatedField(required=True,
-                                                  queryset=Category.objects.all())  # Required during creation
-=======
-    rating = serializers.SerializerMethodField()  # Custom field to get avg rating
-    image = serializers.ImageField(required=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  # Accepts category ID
+    rating = serializers.SerializerMethodField()
 
->>>>>>> Stashed changes
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating"]
+        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock"]
 
     def get_rating(self, obj):
-        # Calculate average rating from reviews
         reviews = obj.reviews.all()
-        if reviews.exists():
-            return round(sum(review.rating for review in reviews) / reviews.count(), 1)
-        return 0.0  # Default rating if no reviews
+        return round(sum(review.rating for review in reviews) / reviews.count(), 1) if reviews.exists() else 0.0
+
 
     def validate(self, attrs):
         # Check if the request is for creation or update
