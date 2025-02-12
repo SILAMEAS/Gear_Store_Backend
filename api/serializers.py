@@ -22,10 +22,32 @@ class CategorySerializer(serializers.ModelSerializer):
 
 # Product Serializer
 class ProductSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=True)
+    image = serializers.ImageField(required=True)  # Required during creation
+    name = serializers.CharField(required=True)  # Required during creation
+    description = serializers.CharField(required=True)  # Required during creation
+    price = serializers.DecimalField(required=True, max_digits=10, decimal_places=2)  # Required during creation
+    category = serializers.PrimaryKeyRelatedField(required=True,
+                                                  queryset=Category.objects.all())  # Required during creation
     class Meta:
         model = Product
         fields = "__all__"
+
+    def validate(self, attrs):
+        # Check if the request is for creation or update
+        if self.context['request'].method == 'POST':
+            # In creation (POST), require all fields
+            for field in ['image', 'name', 'description', 'price', 'category']:
+                if field not in attrs:
+                    raise serializers.ValidationError({field: f'This field is required.'})
+        # If it's an update (PATCH), no extra validation needed
+        return attrs
+
+    def update(self, instance, validated_data):
+        # Update fields based on what is provided in validated_data
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 # OrderItem Serializer
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -38,36 +60,62 @@ class OrderItemSerializer(serializers.ModelSerializer):
 # Order Serializer
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Order
         fields = ['id', 'user', 'status', 'created_at', 'items']
 
+    def validate(self, data):
+        for item in data.get('items', []):
+            product = item['product']
+            quantity = item['quantity']
+
+            if quantity > product.stock:  # Assuming `product.stock` represents available stock
+                raise serializers.ValidationError({
+                    'items': f"Not enough stock for product '{product.name}'. Available: {product.stock}, Requested: {quantity}."
+                })
+
+        return data
     # =======================================================
     #                CREAT ORDER
     # =======================================================
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+
         with transaction.atomic():
             order = Order.objects.create(**validated_data)
 
             for item in items_data:
+                product = item['product']
+                quantity = item['quantity']
+
+                # Create order item
                 OrderItem.objects.create(order=order, **item)
+
+                # Subtract stock if order is delivered
+                if order.status == 'delivered':  # Ensure 'delivered' matches your status choices
+                    if product.stock < quantity:
+                        raise serializers.ValidationError({
+                            'items': f"Not enough stock for product '{product.name}'. Available: {product.stock}, Ordered: {quantity}."
+                        })
+                    product.stock -= quantity
+                    product.save()
+
         return order
 
     # =======================================================
     #                UPDATE ORDER
     # =======================================================
     def update(self, instance, validated_data):
-        orderItem_data = validated_data.pop('items', None)
+        order_item_data = validated_data.pop('items', None)
         with transaction.atomic():
             instance = super().update(instance, validated_data)
-            if orderItem_data is not None:
+            if order_item_data is not None:
                 # Clear all
                 instance.items.all().delete()
                 # Passing
-                for orderItem in orderItem_data:
-                    OrderItem.objects.create(order=instance, **orderItem)
+                for order_item in order_item_data:
+                    OrderItem.objects.create(order=instance, **order_item)
         return instance
 
 
