@@ -36,6 +36,11 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)  # Add this line
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # New Fields
+    colors = models.JSONField(default=list)  # Stores an array of colors
+    sizes = models.JSONField(default=list)  # Stores an array of sizes
+    rating = models.FloatField(default=0.0)  # Stores the product's rating
+
     def __str__(self):
         return self.name
 
