@@ -62,6 +62,18 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return Response({"detail": "Not allowed"}, status=403)
 
+    @action(detail=False, methods=["get"])
+    def me(self, request):
+        """Returns details of the currently authenticated user."""
+        user = request.user  # Get the logged-in user
+        user_data = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+        }
+        return Response(user_data, status=status.HTTP_200_OK)
 
 @extend_schema(tags=["Category"])
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -198,8 +210,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         return Response({"message": "Order canceled and quantities returned to stock."}, status=status.HTTP_200_OK)
 
-
-
 @extend_schema(tags=["OrderItem"])
 class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all()
@@ -211,7 +221,6 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         if not self.request.user.is_staff:
             qs = qs.filter(user=self.request.user)
         return qs
-
 
 @extend_schema(tags=["Cart"])
 class CartViewSet(viewsets.ModelViewSet):
@@ -250,7 +259,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
             qs = qs.filter(user=self.request.user)
         return qs
 
-
 @extend_schema(tags=["Shipping"])
 class ShippingAddressViewSet(viewsets.ModelViewSet):
     queryset = ShippingAddress.objects.all()
@@ -262,7 +270,6 @@ class ShippingAddressViewSet(viewsets.ModelViewSet):
         if not self.request.user.is_staff:
             qs = qs.filter(user=self.request.user)
         return qs
-
 
 @extend_schema(tags=["Review"])
 class ReviewViewSet(viewsets.ModelViewSet):
