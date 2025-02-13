@@ -234,6 +234,10 @@ class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
     pagination_class = CustomPagination
+    # permission_classes = [IsAuthenticated]
+    # Automatically set the user to the currently authenticated user
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
     # GET
     def get_queryset(self):
         qs = super().get_queryset()
@@ -253,6 +257,26 @@ class CartViewSet(viewsets.ModelViewSet):
             cart_item.save()
 
         return Response({"message": "Product added to cart!"}, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['DELETE'], permission_classes=[permissions.IsAdminUser])
+    def clear_carts(self, request):
+        """Delete all orders and return quantities to stock (Super Admin Only)"""
+        if not request.user.is_superuser:
+            return Response({"error": "Only super admins can clear orders."}, status=status.HTTP_403_FORBIDDEN)
+
+        with transaction.atomic():
+            carts = Cart.objects.all()  # Retrieve all orders before deleting
+            serializer = CartSerializer(carts, many=True)
+
+            for item in serializer.data:
+                product = item.product  # Assuming OrderItem has a ForeignKey to Product
+                product.stock += item.quantity  # Return quantity to stock
+                product.save()
+            # Delete all orders
+            carts.delete()
+
+        return Response({"message": "All orders have been deleted and quantities returned to stock."},
+                        status=status.HTTP_204_NO_CONTENT)
 
 @extend_schema(tags=["Payment"])
 class PaymentViewSet(viewsets.ModelViewSet):

@@ -30,7 +30,7 @@ class ProductSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=True)  # Required during creation
     price = serializers.DecimalField(required=True, max_digits=10, decimal_places=2)  # Required during creation
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  # Accepts category ID
-    rating = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField(method_name="get_rating")
     thumbnails = ProductThumbnailSerializer(many=True, read_only=True)  # Nested thumbnails
 
     class Meta:
@@ -131,11 +131,13 @@ class OrderSerializer(serializers.ModelSerializer):
 
 # Cart Serializer
 class CartSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
 
     class Meta:
         model = Cart
-        fields = "__all__"
+        fields = ['id', 'user', 'product', 'quantity']
+
 
 # Payment Serializer
 class PaymentSerializer(serializers.ModelSerializer):
