@@ -160,6 +160,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 # Wishlist Serializer
 class WishlistSerializer(serializers.ModelSerializer):
+    user=serializers.PrimaryKeyRelatedField(read_only=True)
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
     class Meta:
         model = Wishlist
-        fields = "__all__"
+        fields = ['id','user','product']

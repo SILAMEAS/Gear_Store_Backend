@@ -334,6 +334,9 @@ class WishlistViewSet(viewsets.ModelViewSet):
     queryset = Wishlist.objects.all()
     serializer_class = WishlistSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
     # GET
     def get_queryset(self):
         qs = super().get_queryset()
