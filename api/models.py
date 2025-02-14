@@ -91,6 +91,8 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} ({self.quantity})"
+    def total_price(self):
+        return self.product.price*self.quantity
 
 
 # Payment Model

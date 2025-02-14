@@ -23,6 +23,14 @@ class ProductThumbnailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductThumbnail
         fields = ["id", "image"]  # Returning image URL only
+
+# Wishlist Serializer
+class WishlistSerializer(serializers.ModelSerializer):
+    user=serializers.PrimaryKeyRelatedField(read_only=True)
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    class Meta:
+        model = Wishlist
+        fields = ['id','user','product']
 # Product Serializer
 class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=True)  # Required during creation
@@ -32,16 +40,28 @@ class ProductSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  # Accepts category ID
     rating = serializers.SerializerMethodField(method_name="get_rating")
     thumbnails = ProductThumbnailSerializer(many=True, read_only=True)  # Nested thumbnails
-
+    isWishlist = serializers.SerializerMethodField(method_name="get_is_in_wishlist")
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock","thumbnails"]
+        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock","thumbnails","isWishlist"]
 
     def get_rating(self, obj):
         reviews = obj.reviews.all()
         return round(sum(review.rating for review in reviews) / reviews.count(), 1) if reviews.exists() else 0.0
 
+    def get_is_in_wishlist(self, obj):
+        request = self.context.get('request', None)
 
+        # Debugging prints
+        print("Request Object:", request)
+        if request:
+            print("User:", request.user)
+            print("Is Authenticated:", request.user.is_authenticated)
+
+        if request and request.user and request.user.is_authenticated:
+            return Wishlist.objects.filter(user=request.user, product=obj).exists()
+
+        return False
     def validate(self, attrs):
         # Check if the request is for creation or update
         if self.context['request'].method == 'POST':
@@ -133,10 +153,13 @@ class OrderSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    image=serializers.ImageField(source='product.image', read_only=True)
+    name = serializers.CharField(source='product.name', read_only=True)
+    price = serializers.DecimalField(source='product.price',max_digits=10,decimal_places=2,read_only=True)
 
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'product', 'quantity']
+        fields = ['id', 'user', 'product', 'quantity',"image","name","price","total_price"]
 
 
 # Payment Serializer
@@ -158,10 +181,4 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = "__all__"
 
-# Wishlist Serializer
-class WishlistSerializer(serializers.ModelSerializer):
-    user=serializers.PrimaryKeyRelatedField(read_only=True)
-    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
-    class Meta:
-        model = Wishlist
-        fields = ['id','user','product']
+
