@@ -30,7 +30,9 @@ router.register(r'wishlist', WishlistViewSet)
 
 # URL Patterns
 urlpatterns = [
+    # Url
     path('api/', include(router.urls)),
+    # Auth
     path('api/token/',
          extend_schema(tags=["Auth"])(TokenObtainPairView).as_view(),
          name='token_obtain_pair'),
