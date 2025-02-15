@@ -1,11 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import (
-    UserViewSet, CategoryViewSet, ProductViewSet, OrderViewSet,
-    OrderItemViewSet, CartViewSet, PaymentViewSet, ShippingAddressViewSet,
-    ReviewViewSet, WishlistViewSet
-)
+
+from api.app.product.views import ProductViewSet
+from api.app.user.views import UserViewSet
+from api.app.wishlist.views import WishlistViewSet
+from api.app.order.views import OrderViewSet,OrderItemViewSet
+from api.app.category.views import CategoryViewSet
+from api.app.cart.views import CartViewSet
+from api.app.payment.views import PaymentViewSet
+from api.app.review.views import ReviewViewSet
+from api.app.shipping.views import ShippingAddressViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
