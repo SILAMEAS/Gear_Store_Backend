@@ -16,7 +16,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        print(instance)
         if not instance:
             return Response({"detail": "Category not found"}, status=404)
 

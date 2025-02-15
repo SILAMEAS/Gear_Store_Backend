@@ -45,7 +45,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Not allowed"}, status=403)
 
     @action(detail=False, methods=["get"])
-    def me(self, request):
+    def info(self, request):
         """Returns details of the currently authenticated user."""
         user = request.user  # Get the logged-in user
         user_data = {
@@ -54,5 +54,8 @@ class UserViewSet(viewsets.ModelViewSet):
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+            "is_active": user.is_active,
         }
         return Response(user_data, status=status.HTTP_200_OK)

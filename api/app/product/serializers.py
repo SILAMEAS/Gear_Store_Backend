@@ -25,12 +25,6 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_is_in_wishlist(self, obj):
         request = self.context.get('request', None)
 
-        # Debugging prints
-        print("Request Object:", request)
-        if request:
-            print("User:", request.user)
-            print("Is Authenticated:", request.user.is_authenticated)
-
         if request and request.user and request.user.is_authenticated:
             return Wishlist.objects.filter(user=request.user, product=obj).exists()
 
