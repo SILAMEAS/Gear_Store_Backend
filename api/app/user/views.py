@@ -59,3 +59,30 @@ class UserViewSet(viewsets.ModelViewSet):
             "is_active": user.is_active,
         }
         return Response(user_data, status=status.HTTP_200_OK)
+
+
+from rest_framework import status, generics
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
+from api.app.user.serializer import SignupSerializer
+
+@extend_schema(tags=["Authentication"])
+class SignupView(generics.CreateAPIView):
+    serializer_class = SignupSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                {
+                    "message": "User registered successfully",
+                    "user": {
+                        "id": user.id,
+                        "email": user.email,
+                        "username": user.username,
+                    },
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

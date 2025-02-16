@@ -27,6 +27,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
         if request and request.user and request.user.is_authenticated:
             return Wishlist.objects.filter(user=request.user, product=obj).exists()
+        if request and request.user and request.user.is_anonymous:
+            return "is_anonymous"
 
         return False
     def validate(self, attrs):

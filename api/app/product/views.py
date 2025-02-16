@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework import permissions
@@ -15,7 +15,7 @@ from api.app.product.serializers import ProductSerializer
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = CustomPagination
 
