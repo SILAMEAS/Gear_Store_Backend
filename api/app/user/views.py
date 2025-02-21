@@ -5,12 +5,15 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from api.models import User
 from api.app.user.serializer import UserSerializer
+from api.pagination import CustomPagination
+
 
 @extend_schema(tags=["User"])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
     # # GET
     def get_queryset(self):
         """Modify queryset based on action"""
@@ -32,6 +35,11 @@ class UserViewSet(viewsets.ModelViewSet):
             queryset = self.get_queryset().filter(id=request.user.id)  # Regular users see only themselves
         serializer = self.get_serializer(queryset, many=True)
         if request.user.is_superuser:
+            # Apply pagination
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)  # Uses CustomPagination
             return Response(serializer.data)
         else:
             return Response(serializer.data[0])
@@ -59,6 +67,32 @@ class UserViewSet(viewsets.ModelViewSet):
             "is_active": user.is_active,
         }
         return Response(user_data, status=status.HTTP_200_OK)
+    @action(detail=False, methods=["get"])
+    def staffs(self, request):
+        """Customize list behavior with pagination and filter only superusers"""
+        queryset = self.get_queryset().filter(is_staff=True)  # Filter only superusers
+
+        # Apply pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)  # Uses CustomPagination
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)  # Fallback if pagination is disabled
+    @action(detail=False, methods=["get"])
+    def customers(self, request):
+        """Customize list behavior with pagination and filter only superusers"""
+        queryset = self.get_queryset().filter(is_active=True,is_superuser=False,is_staff=False)  # Filter only superusers
+
+        # Apply pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)  # Uses CustomPagination
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)  # Fallback if pagination is disabled
 
 
 from rest_framework import status, generics

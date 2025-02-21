@@ -32,7 +32,7 @@ router.register(r'wishlist', WishlistViewSet)
 # URL Patterns
 urlpatterns = [
     # Dashboard Summary
-    path("api/admin/dashboard", DashboardSummaryView.as_view()),
+    path("api/dashboard", DashboardSummaryView.as_view()),
     path("signup/", SignupView.as_view(), name="signup"),
     # Url
     path('api/', include(router.urls)),
