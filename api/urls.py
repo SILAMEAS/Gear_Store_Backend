@@ -11,6 +11,7 @@ from api.app.cart.views import CartViewSet
 from api.app.payment.views import PaymentViewSet
 from api.app.review.views import ReviewViewSet
 from api.app.shipping.views import ShippingAddressViewSet
+from api.app.dashboard.views import DashboardSummaryView
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
@@ -30,6 +31,8 @@ router.register(r'wishlist', WishlistViewSet)
 
 # URL Patterns
 urlpatterns = [
+    # Dashboard Summary
+    path("api/admin/dashboard", DashboardSummaryView.as_view()),
     path("signup/", SignupView.as_view(), name="signup"),
     # Url
     path('api/', include(router.urls)),
