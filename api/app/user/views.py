@@ -64,6 +64,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
         # Format DOB as a string if it exists
         dob = user.dob.strftime('%d-%m-%Y') if user.dob else ""
+        # role
+        role = "user"
+        if user.is_superuser or user.is_staff:
+            role = "admin"
         # Build the response dictionary with (pin) suffix
         user_data = {
             "id": str(user.id),  # Convert UUID to string for JSON serialization
@@ -75,7 +79,7 @@ class UserViewSet(viewsets.ModelViewSet):
             "is_superuser": user.is_superuser,
             "is_active": user.is_active,
             "profile_image": profile_image_url,
-            "role": user.role,
+            "role": role,
             "phone": user.phone or "",
             "DOB": dob,
             "country": user.country or "",
