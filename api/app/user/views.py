@@ -56,8 +56,17 @@ class UserViewSet(viewsets.ModelViewSet):
     def info(self, request):
         """Returns details of the currently authenticated user."""
         user = request.user  # Get the logged-in user
+
+        # Construct the full URL for profile_image
+        profile_image_url = None
+        if user.profile_image:
+            profile_image_url = request.build_absolute_uri(user.profile_image.url)
+
+        # Format DOB as a string if it exists
+        dob = user.dob.strftime('%d-%m-%Y') if user.dob else ""
+        # Build the response dictionary with (pin) suffix
         user_data = {
-            "id": user.id,
+            "id": str(user.id),  # Convert UUID to string for JSON serialization
             "username": user.username,
             "email": user.email,
             "first_name": user.first_name,
@@ -65,6 +74,13 @@ class UserViewSet(viewsets.ModelViewSet):
             "is_staff": user.is_staff,
             "is_superuser": user.is_superuser,
             "is_active": user.is_active,
+            "profile_image": profile_image_url,
+            "role": user.role,
+            "phone": user.phone or "",
+            "DOB": dob,
+            "country": user.country or "",
+            "City": user.city or "",
+            "Postal_Code": user.postal_code or ""
         }
         return Response(user_data, status=status.HTTP_200_OK)
     @action(detail=False, methods=["get"])

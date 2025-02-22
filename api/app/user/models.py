@@ -9,6 +9,19 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     is_active = models.BooleanField(default=True)
+    profile_image = models.ImageField(
+        upload_to='profile_images/',
+        null=True,
+        blank=True,
+        default='profile_images/default.jpg'
+    )
+
+    role = models.CharField(max_length=50, default='user', blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
+    dob = models.DateField(null=True, blank=True)  # Date of Birth
+    country = models.CharField(max_length=100, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    postal_code = models.CharField(max_length=20, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

@@ -11,7 +11,7 @@ from api.app.order.models import OrderItem,Order
 from api.app.payment.models import Payment
 from api.app.product.models import Product
 from api.app.user.models import User
-
+from django.conf import settings
 @extend_schema(tags=["Dashboard"])
 class DashboardSummaryView(APIView):
     def get(self, request):
@@ -74,7 +74,10 @@ class DashboardSummaryView(APIView):
                 "name": product["product__name"],
                 "sold": product["total_quantity_sold"],
                 "revenue": product["revenue"],
-                "image": product["product__image"],
+                # "image": product["product__image"],
+                # "image": request.build_absolute_uri(product["product__image"]) if product["product__image"] else None
+                "image": request.build_absolute_uri(settings.MEDIA_URL + product["product__image"]) if product[
+                    "product__image"] else None
             }
             for product in top_selling_products
         ]
