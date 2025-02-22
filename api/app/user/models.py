@@ -15,8 +15,14 @@ class User(AbstractUser):
         blank=True,
         default='profile_images/default.jpg'
     )
+    ROLE_CHOICES = [
+        ('user', 'User'),
+        ('admin', 'Admin'),
+        ('moderator', 'Moderator'),
+    ]
 
-    role = models.CharField(max_length=50, default='user', blank=True)
+    role = models.CharField(choices=ROLE_CHOICES, max_length=10, default='user')
+
     phone = models.CharField(max_length=15, null=True, blank=True)
     dob = models.DateField(null=True, blank=True)  # Date of Birth
     country = models.CharField(max_length=100, null=True, blank=True)

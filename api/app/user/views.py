@@ -81,10 +81,11 @@ class UserViewSet(viewsets.ModelViewSet):
             "profile_image": profile_image_url,
             "role": role,
             "phone": user.phone or "",
-            "DOB": dob,
+            "dob": dob,
             "country": user.country or "",
-            "City": user.city or "",
-            "Postal_Code": user.postal_code or ""
+            "city": user.city or "",
+            "postal_code": user.postal_code or "",
+            "password":user.password or "",
         }
         return Response(user_data, status=status.HTTP_200_OK)
     @action(detail=False, methods=["get"])
