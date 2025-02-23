@@ -13,7 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "phone",
             "dob",
+            "first_name",
+            "last_name",
             "is_active",
+            "is_staff",
+            "is_superuser",
             "profile_image",
             "role",
             "phone",
@@ -32,6 +36,19 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         if "password" in validated_data:
             validated_data["password"] = make_password(validated_data["password"])
+        if "role" in validated_data:
+            if validated_data["role"] == "moderator":
+                validated_data["is_active"] = True
+                validated_data["is_staff"] = True
+                validated_data["is_superuser"] = False
+            elif validated_data["role"] == "admin":
+                validated_data["is_active"] = True
+                validated_data["is_staff"] = True  # Admins usually need staff privileges
+                validated_data["is_superuser"] = True
+            else:
+                validated_data["is_active"] = True
+                validated_data["is_staff"] = False
+                validated_data["is_superuser"] = False
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
