@@ -45,10 +45,10 @@ class DashboardSummaryView(APIView):
         total_orders = delivered_orders.count()
 
         # Total Customers
-        total_customers = User.objects.filter(orders__in=delivered_orders).distinct().count()
+        total_customers = User.objects.all().distinct().count()
 
         # Total Payment Received
-        total_payment = Payment.objects.filter(order__in=delivered_orders, status="completed").aggregate(
+        total_payment = Payment.objects.filter(order__in=delivered_orders).aggregate(
             total_payment=Sum("amount")
         )["total_payment"] or 0
 
@@ -83,7 +83,7 @@ class DashboardSummaryView(APIView):
         ]
 
         # Recent Orders Data
-        recent_orders_data = Order.objects.filter(date_filter).order_by("-created_at")[:5].prefetch_related('items')
+        recent_orders_data = Order.objects.all().order_by("-created_at")[:5].prefetch_related('items')
         recent_orders_response = [
             {
                 "id": order.id,

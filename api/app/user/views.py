@@ -7,13 +7,14 @@ from api.models import User
 from api.app.user.serializer import UserSerializer
 from api.pagination import CustomPagination
 
-
+from rest_framework.parsers import MultiPartParser, FormParser
 @extend_schema(tags=["User"])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPagination
+    parser_classes = [MultiPartParser, FormParser]  # Enable file upload support
     # # GET
     def get_queryset(self):
         """Modify queryset based on action"""

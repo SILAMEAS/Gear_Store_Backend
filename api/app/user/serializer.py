@@ -34,6 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"password": ["This field is required."]})
         return attrs
     def create(self, validated_data):
+        print(validated_data)
         if "password" in validated_data:
             validated_data["password"] = make_password(validated_data["password"])
         if "role" in validated_data:
