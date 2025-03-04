@@ -92,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def staffs(self, request):
         """Customize list behavior with pagination and filter only superusers"""
-        queryset = self.get_queryset().filter(is_staff=True)  # Filter only superusers
+        queryset = self.get_queryset()  # Filter only superusers
 
         # Apply pagination
         page = self.paginate_queryset(queryset)
@@ -105,7 +105,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def customers(self, request):
         """Customize list behavior with pagination and filter only superusers"""
-        queryset = self.get_queryset().filter(is_active=True,is_superuser=False,is_staff=False)  # Filter only superusers
+        queryset = self.get_queryset().filter(is_superuser=False,is_staff=False)  # Filter only superusers
 
         # Apply pagination
         page = self.paginate_queryset(queryset)
