@@ -1,3 +1,4 @@
+from django.contrib.admindocs.utils import ROLES
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -92,7 +93,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def staffs(self, request):
         """Customize list behavior with pagination and filter only superusers"""
-        queryset = self.get_queryset()  # Filter only superusers
+        queryset = self.get_queryset().exclude(role="user")  # Filter only superusers
 
         # Apply pagination
         page = self.paginate_queryset(queryset)
@@ -105,7 +106,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def customers(self, request):
         """Customize list behavior with pagination and filter only superusers"""
-        queryset = self.get_queryset().filter(is_superuser=False,is_staff=False)  # Filter only superusers
+        queryset = self.get_queryset().filter(role="user")  # Filter only superusers
 
         # Apply pagination
         page = self.paginate_queryset(queryset)

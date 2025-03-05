@@ -10,6 +10,7 @@ from api.app.category.models import Category
 from api.app.order.models import OrderItem,Order
 from api.app.payment.models import Payment
 from api.app.product.models import Product
+from api.app.shipping.models import ShippingAddress
 from api.app.user.models import User
 from django.conf import settings
 @extend_schema(tags=["Dashboard"])
@@ -45,7 +46,9 @@ class DashboardSummaryView(APIView):
         total_orders = delivered_orders.count()
 
         # Total Customers
-        total_customers = User.objects.all().distinct().count()
+        total_customers = User.objects.filter(role='user').distinct().count()
+        # Total User
+        total_users = User.objects.exclude(role='user').distinct().count()
 
         # Total Payment Received
         total_payment = Payment.objects.filter(order__in=delivered_orders).aggregate(
@@ -107,7 +110,8 @@ class DashboardSummaryView(APIView):
                 "date": datetime(2000, month, 1).strftime("%b"),  # Get month abbreviation
                 "amount": monthly_sales
             })
-
+        # total_shipping
+        total_shipping = ShippingAddress.objects.count()
         return Response({
             "cards": [
                 {
@@ -126,6 +130,11 @@ class DashboardSummaryView(APIView):
                     "value": total_customers,
                 },
                 {
+                    "id": "total_users",
+                    "title": "Total Users",
+                    "value": total_users,
+                },
+                {
                     "id": "total_payment",
                     "title": "Total Payment",
                     "value": total_payment,
@@ -139,7 +148,12 @@ class DashboardSummaryView(APIView):
                     "id": "total_categories",
                     "title": "Total Categories",
                     "value": total_categories,
-                }
+                },
+                {
+                    "id": "total_shipping",
+                    "title": "Total Shipping",
+                    "value": total_shipping,
+                },
             ],
             "top_selling_products": top_selling_products_response,  # Updated response format
             "recent_orders_data": recent_orders_response,  # Updated recent orders format
