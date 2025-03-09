@@ -52,8 +52,8 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         # Users can create, update, delete only their own objects
         return obj.user == request.user
 
-# How It Works
-# Role	View (GET)	Create (POST)	Update (PUT/PATCH)	Delete (DELETE)
-# Admin	✅ All	✅ All	✅ All	✅ All
-# Owner	✅ Own Data	✅ Own Data	✅ Own Data	✅ Own Data
-# Others	❌ No Access	❌ No Access	❌ No Access	❌ No Access
+    # How It Works
+    # Role	View (GET)	Create (POST)	Update (PUT/PATCH)	Delete (DELETE)
+    # Admin	✅ All	✅ All	✅ All	✅ All
+    # Owner	✅ Own Data	✅ Own Data	✅ Own Data	✅ Own Data
+    # Others	❌ No Access	❌ No Access	❌ No Access	❌ No Access
