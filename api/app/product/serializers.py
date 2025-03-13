@@ -14,10 +14,13 @@ class ProductSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField(method_name="get_rating")
     thumbnails = ProductThumbnailSerializer(many=True, read_only=True)  # Nested thumbnails
     isWishlist = serializers.SerializerMethodField(method_name="get_is_in_wishlist")
+    categoryName = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock","thumbnails","isWishlist"]
+        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock","thumbnails","isWishlist","categoryName"]
 
+    def get_categoryName(self, obj):
+        return obj.category.name if obj.category else None
     def get_rating(self, obj):
         reviews = obj.reviews.all()
         return round(sum(review.rating for review in reviews) / reviews.count(), 1) if reviews.exists() else 0.0
