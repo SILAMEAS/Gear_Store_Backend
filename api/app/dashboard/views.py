@@ -7,13 +7,14 @@ from datetime import datetime
 from rest_framework import status
 
 from api.app.category.models import Category
+from api.app.dashboard.serializer import DashboardSummarySerializer
 from api.app.order.models import OrderItem,Order
 from api.app.payment.models import Payment
 from api.app.product.models import Product
 from api.app.shipping.models import ShippingAddress
 from api.app.user.models import User
 from django.conf import settings
-@extend_schema(tags=["Dashboard"])
+@extend_schema(tags=["Dashboard"],responses=DashboardSummarySerializer)
 class DashboardSummaryView(APIView):
     def get(self, request):
         # Get optional date filters
