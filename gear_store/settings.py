@@ -41,8 +41,9 @@ INSTALLED_APPS = [
     'rest_framework',  # DRF
     'django_extensions',
     'api',
-    # ALL YOUR APPS
+    # API
     'drf_spectacular',
+    "drf_spectacular_sidecar",  # for UI assets
     # allow cor
     'corsheaders'
 ]
@@ -138,7 +139,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 AUTH_USER_MODEL = "api.User"
 
@@ -150,7 +151,7 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'LA Gear Store',
     'DESCRIPTION': 'Online Shopping sell accessories computer',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    'SERVE_INCLUDE_SCHEMA': True,
     'COMPONENT_SPLIT_REQUEST': True,  # Ensures correct handling of file uploads
     # OTHER SETTINGS
 }
