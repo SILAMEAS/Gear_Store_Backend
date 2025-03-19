@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from api.app.product.views import ProductViewSet
+from api.app.setting.views import SettingsViewSet
 from api.app.user.views import UserViewSet, SignupView
 from api.app.wishlist.views import WishlistViewSet
 from api.app.order.views import OrderViewSet,OrderItemViewSet
@@ -28,6 +29,8 @@ router.register(r'payments', PaymentViewSet)
 router.register(r'shipping-addresses', ShippingAddressViewSet)
 router.register(r'reviews', ReviewViewSet)
 router.register(r'wishlist', WishlistViewSet)
+router.register(r'settings', SettingsViewSet)
+
 
 # URL Patterns
 urlpatterns = [

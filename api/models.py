@@ -7,4 +7,5 @@ from api.app.review.models import Review
 from api.app.cart.models import Cart
 from api.app.payment.models import Payment
 from api.app.shipping.models import ShippingAddress
+from api.app.setting.models import Settings
 
