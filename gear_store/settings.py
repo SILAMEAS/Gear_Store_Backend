@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -56,7 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+
 
     'django.middleware.common.CommonMiddleware'
 ]
@@ -151,10 +152,19 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'LA Gear Store',
     'DESCRIPTION': 'Online Shopping sell accessories computer',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': True,
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': r'/api/',
     'COMPONENT_SPLIT_REQUEST': True,  # Ensures correct handling of file uploads
-    # OTHER SETTINGS
+    'SWAGGER_UI_SETTINGS': {
+        "deepLinking": True,
+        "persistAuthorization": True,
+    },
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
 }
+
+
 CORS_ORIGIN_ALLOW_ALL = True
 # time life of jwt token
 from datetime import timedelta
@@ -162,3 +172,5 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Change to your desired access token lifetime
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Change to your desired refresh token lifetime
 }
+X_FRAME_OPTIONS = "ALLOWALL"
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for testing)
