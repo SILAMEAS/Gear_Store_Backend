@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from api.app.review.serializer import ReviewSerializer
