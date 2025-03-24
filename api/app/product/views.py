@@ -1,4 +1,5 @@
-from rest_framework import viewsets, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, status,filters
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
@@ -9,15 +10,32 @@ from django.db import transaction
 from api.pagination import CustomPagination
 from api.models import Product,ProductThumbnail
 from api.app.product.serializers import ProductSerializer
-
+from django.db.models import Avg
 
 @extend_schema(tags=["Product"])
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.annotate(avg_rating=Avg('reviews__rating'))  # Compute rating dynamically
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = CustomPagination
+    # Enable filtering, searching, and ordering
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+
+    # Define filter fields
+    filterset_fields = ['category', 'price']
+
+    # Define search fields (uses `icontains` lookup by default)
+    search_fields = ['name']
+
+    # Define ordering fields (default: ordering by 'id')
+    ordering_fields = ['price', 'name','id','avg_rating',"stock"]
+    ordering = ['id']
+    # /api/products/?ordering=price    # Ascending price
+    # /api/products/?ordering=-price   # Descending price
+    # /api/products/?search=laptop
+    # /api/products/?category=electronics&price=100
+    # /api/products/?min_price=50&max_price=200
 
     def perform_create(self, serializer):
         product = serializer.save()

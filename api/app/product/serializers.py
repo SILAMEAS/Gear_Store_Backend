@@ -11,13 +11,13 @@ class ProductSerializer(serializers.ModelSerializer):
     description = serializers.CharField(required=True)  # Required during creation
     price = serializers.DecimalField(required=True, max_digits=10, decimal_places=2)  # Required during creation
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  # Accepts category ID
-    rating = serializers.SerializerMethodField(method_name="get_rating")
+    avg_rating = serializers.SerializerMethodField(method_name="get_rating")
     thumbnails = ProductThumbnailSerializer(many=True, read_only=True)  # Nested thumbnails
     isWishlist = serializers.SerializerMethodField(method_name="get_is_in_wishlist")
     categoryName = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "rating", "category", "stock","thumbnails","isWishlist","categoryName"]
+        fields = ["id", "name", "description", "image", "price", "colors", "sizes", "avg_rating", "category", "stock","thumbnails","isWishlist","categoryName","created_at","updated_at"]
 
     def get_categoryName(self, obj):
         return obj.category.name if obj.category else None
