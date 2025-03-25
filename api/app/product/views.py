@@ -29,7 +29,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name']
 
     # Define ordering fields (default: ordering by 'id')
-    ordering_fields = ['price', 'name','id','avg_rating',"stock"]
+    ordering_fields = ['price', 'name','id','avg_rating',"stock",'updated_at']
     ordering = ['id']
     # /api/products/?ordering=price    # Ascending price
     # /api/products/?ordering=-price   # Descending price
@@ -43,6 +43,16 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         for image in thumbnails:
             ProductThumbnail.objects.create(product=product, image=image)
+
+    @action(detail=False, methods=['GET'], permission_classes=[permissions.AllowAny])
+    def filter_fields(self, request):
+        """Expose filter fields to the frontend"""
+        filters = {
+            "filterset_fields": self.filterset_fields,
+            "search_fields": self.search_fields,
+            "ordering_fields": self.ordering_fields
+        }
+        return Response(filters)
 
     @action(detail=False, methods=['DELETE'], permission_classes=[permissions.IsAdminUser])
     def clear_products(self, request):
