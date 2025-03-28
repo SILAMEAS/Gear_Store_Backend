@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+
 from api.models import Category, Product,Wishlist,ProductThumbnail
 class ProductThumbnailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -6,7 +8,7 @@ class ProductThumbnailSerializer(serializers.ModelSerializer):
         fields = ["id", "image"]  # Returning image URL only
 # Product Serializer
 class ProductSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=True)  # Required during creation
+    image = serializers.ImageField(required=False, allow_null=True)  # Allow image to be optional
     name = serializers.CharField(required=True)  # Required during creation
     description = serializers.CharField(required=True)  # Required during creation
     price = serializers.DecimalField(required=True, max_digits=10, decimal_places=2)  # Required during creation
@@ -45,8 +47,6 @@ class ProductSerializer(serializers.ModelSerializer):
         return attrs
 
     def update(self, instance, validated_data):
-        # Update fields based on what is provided in validated_data
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+        if "image" not in validated_data or validated_data["image"] is None:
+            validated_data["image"] = instance.image  # Keep the old image
+        return super().update(instance, validated_data)
