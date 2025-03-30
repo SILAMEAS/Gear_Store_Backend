@@ -5,14 +5,14 @@ from api.app.auth.custom_auth import SuperAdminOnly
 from api.models import Category
 from api.app.category.serializer import CategorySerializer
 from api.pagination import CustomPagination
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 @extend_schema(tags=["Category"])
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = CustomPagination
-    permission_classes = [SuperAdminOnly]
+    parser_classes = [MultiPartParser, FormParser]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

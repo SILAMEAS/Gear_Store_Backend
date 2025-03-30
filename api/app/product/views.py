@@ -7,6 +7,9 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework import permissions
 from django.db import transaction
+from django.db.models import Max, Min
+from api.app.category.models import Category
+from api.app.category.serializer import CategorySerializer
 from api.pagination import CustomPagination
 from api.models import Product,ProductThumbnail
 from api.app.product.serializers import ProductSerializer
@@ -26,7 +29,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category', 'price']
 
     # Define search fields (uses `icontains` lookup by default)
-    search_fields = ['name']
+    search_fields = ['name','description']
 
     # Define ordering fields (default: ordering by 'id')
     ordering_fields = ['price', 'name','id','avg_rating',"stock",'updated_at']
@@ -46,11 +49,26 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'], permission_classes=[permissions.AllowAny])
     def filter_fields(self, request):
+        categories = Category.objects.all()
+        serialized_categories = CategorySerializer(categories, many=True).data
+        # Get max and min price from Product model
+        price_range = Product.objects.aggregate(
+            max_price=Max("price"),
+            min_price=Min("price")
+        )
         """Expose filter fields to the frontend"""
         filters = {
             "filterset_fields": self.filterset_fields,
             "search_fields": self.search_fields,
-            "ordering_fields": self.ordering_fields
+            # "ordering_fields": self.ordering_fields
+            "data_filter":{
+                "category": serialized_categories,
+                "price": {
+                    "max": price_range["max_price"] if price_range["max_price"] is not None else 100,
+                    # Default if no products
+                    "min": price_range["min_price"] if price_range["min_price"] is not None else 0
+                }
+            }
         }
         return Response(filters)
 
