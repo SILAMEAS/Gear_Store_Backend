@@ -57,9 +57,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-
-    'django.middleware.common.CommonMiddleware'
 ]
 
 ROOT_URLCONF = 'gear_store.urls'
@@ -165,7 +162,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 # time life of jwt token
 from datetime import timedelta
 SIMPLE_JWT = {
@@ -173,4 +170,10 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Change to your desired refresh token lifetime
 }
 X_FRAME_OPTIONS = "ALLOWALL"
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for testing)
+# CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for testing)
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3003",
+    "http://localhost:3000",
+    "https://sila-store.vercel.app"
+]
