@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this line
 ]
 
 ROOT_URLCONF = 'gear_store.urls'
@@ -177,3 +178,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://sila-store.vercel.app"
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
