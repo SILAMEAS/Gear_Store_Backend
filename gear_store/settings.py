@@ -23,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+0eqisb&ggsi+f+1&^qx7rgl8xjfxv1fc-53=s4o@bd&+p&xxn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+ '*'
+]
 
 
 # Application definition
@@ -49,7 +51,7 @@ INSTALLED_APPS = [
 ]
 INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -171,23 +173,50 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  # Change to your desired refresh token lifetime
 }
 X_FRAME_OPTIONS = "ALLOWALL"
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for testing)
+# Remove this line to avoid conflicts
+CORS_ALLOW_ALL_ORIGINS = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3003",
-#     "http://localhost:3000",
-#     "https://sila-store.vercel.app"
-# ]
-# CSRF_TRUSTED_ORIGINS = ["https://sila-store.vercel.app", "https://sila-store-service.vercel.app"]
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Explicitly allow your frontend origin
+CORS_ALLOWED_ORIGINS = [
+    "https://sila-store.vercel.app",  # Your frontend URL
+    "http://localhost:3000",  # For local development (if needed)
+    "http://localhost:3003",  # For local development (if needed)
+]
 
+# Allow credentials (important for JWT authentication)
+CORS_ALLOW_CREDENTIALS = True
 
+# Allow specific methods and headers
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://sila-store.vercel.app",
+    "https://sila-store-service.vercel.app",
+]
 
 from decouple import config
 import cloudinary
-
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": config("CLOUDINARY_API_KEY"),
