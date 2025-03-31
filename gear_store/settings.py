@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     # allow cor
     'corsheaders'
 ]
-
+INSTALLED_APPS += ["cloudinary", "cloudinary_storage"]
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -181,3 +181,12 @@ CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for testing)
 # CSRF_TRUSTED_ORIGINS = ["https://sila-store.vercel.app", "https://sila-store-service.vercel.app"]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"

@@ -85,3 +85,31 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         return Response({"message": "All products have been deleted."},
                         status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, *args, **kwargs):
+        product_ids = request.data.get("product_ids")
+
+        if not product_ids:
+            return Response({"error": "No product ID(s) provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle single ID case
+        if isinstance(product_ids, (str, int)):  # Single ID case
+            product_ids = [int(product_ids)]  # Convert to list for uniform handling
+
+        # Handle multiple IDs case
+        elif isinstance(product_ids, list):
+            try:
+                product_ids = [int(pid) for pid in product_ids]  # Ensure all are integers
+            except ValueError:
+                return Response({"error": "Invalid product ID format"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "Invalid data format, expected a string, integer, or list of IDs"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Perform deletion
+        deleted_count, _ = Product.objects.filter(id__in=product_ids).delete()
+
+        if deleted_count == 0:
+            return Response({"message": "No products deleted, check IDs"}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"message": f"{deleted_count} product(s) deleted successfully"}, status=status.HTTP_200_OK)
