@@ -85,14 +85,19 @@ WSGI_APPLICATION = 'gear_store.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+import os
+import dj_database_url
+DATABASE_URL = os.getenv("DATABASE_URL", "postgres://avnadmin:AVNS_HyTbsknclgW5ERgrwg3@pg-373a0c43-aiven-sql.l.aivencloud.com:16717/gear_store")
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": dj_database_url.config(
+        default=DATABASE_URL,  # Now correctly assigns the default value
+        conn_max_age=600,
+        ssl_require=True,
+    )
 }
-
+# Debugging Output
+# print("DATABASE_URL:", DATABASE_URL)
+# print("DATABASES:", DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -232,9 +237,10 @@ cloudinary.config(
 )
 
 # Debug
-print("Cloudinary Config:", CLOUDINARY_STORAGE)
-print("Cloudinary Runtime Config:", {
-    "cloud_name": cloudinary.config().cloud_name,
-    "api_key": cloudinary.config().api_key,
-    "api_secret": cloudinary.config().api_secret,
-})
+# print("Cloudinary Config:", CLOUDINARY_STORAGE)
+# print("Cloudinary Runtime Config:", {
+#     "cloud_name": cloudinary.config().cloud_name,
+#     "api_key": cloudinary.config().api_key,
+#     "api_secret": cloudinary.config().api_secret,
+# })
+# print("DATABASES",DATABASES)

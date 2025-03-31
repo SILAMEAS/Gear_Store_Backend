@@ -5,6 +5,7 @@ from api.models import User
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True,required=False)
+    profile_image = serializers.ImageField(required=False, allow_null=True)  # Allow image to be optional
 
     class Meta:
         model = User
@@ -38,6 +39,7 @@ class UserSerializer(serializers.ModelSerializer):
         if "password" in validated_data:
             validated_data["password"] = make_password(validated_data["password"])
         if "role" in validated_data:
+            print(validated_data["role"])
             if validated_data["role"] == "moderator":
                 validated_data["is_active"] = True
                 validated_data["is_staff"] = True

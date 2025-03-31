@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from cloudinary.models import CloudinaryField
 
 # Custom User Model
 class User(AbstractUser):
@@ -9,12 +9,16 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
     is_active = models.BooleanField(default=True)
-    profile_image = models.ImageField(
-        upload_to='profile_images/',
-        null=True,
-        blank=True,
-        default='profile_images/default.jpg'
-    )
+    # profile_image = models.ImageField(
+    #     upload_to='profile_images/',
+    #     null=True,
+    #     blank=True,
+    #     default='profile_images/default.jpg'
+    # )
+    # profile_image = CloudinaryField('profile_images/', null=True, blank=True,default='profile_images/default.jpg')  # Use CloudinaryField
+
+    # profile_image = CloudinaryField('image', null=True, blank=True)  # Use CloudinaryField
+    profile_image = CloudinaryField('image', null=True, blank=True)  # Use CloudinaryField
     ROLE_CHOICES = [
         ('user', 'User'),
         ('admin', 'Admin'),
