@@ -173,11 +173,11 @@ SIMPLE_JWT = {
 X_FRAME_OPTIONS = "ALLOWALL"
 CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for testing)
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3003",
-    "http://localhost:3000",
-    "https://sila-store.vercel.app"
-]
-CSRF_TRUSTED_ORIGINS = ["https://sila-store.vercel.app", "https://sila-store-service.vercel.app"]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3003",
+#     "http://localhost:3000",
+#     "https://sila-store.vercel.app"
+# ]
+# CSRF_TRUSTED_ORIGINS = ["https://sila-store.vercel.app", "https://sila-store-service.vercel.app"]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
